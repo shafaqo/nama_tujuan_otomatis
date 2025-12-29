@@ -23,11 +23,11 @@
 
         <div class="p-6 space-y-6">
             
-            <!-- Step 1: Input URL -->
-            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                <label class="block text-gray-700 font-bold mb-2">1. Masukkan Link Website Undangan</label>
-                <p class="text-xs text-gray-500 mb-2">Contoh: <i>diana-ikbal.vercel.app</i> atau copy link dari browser saat membuka index.html</p>
-                <input type="text" id="baseUrl" placeholder="https://shafaqo.github.io/undangannikahende/" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#2F5233] outline-none">
+            <!-- Step 1: Input URL (PERMANEN) -->
+            <div class="bg-gray-100 p-4 rounded-lg border border-gray-300">
+                <label class="block text-gray-700 font-bold mb-2">1. Link Website Undangan</label>
+                <p class="text-xs text-gray-500 mb-2">Link ini sudah diset secara permanen.</p>
+                <input type="text" id="baseUrl" value="https://shafaqo.github.io/undangannikahende/" class="w-full p-3 border rounded-lg bg-gray-200 text-gray-600 focus:outline-none cursor-not-allowed" readonly>
             </div>
 
             <!-- Step 2: Input Nama Tamu -->
@@ -76,7 +76,7 @@
                 return;
             }
             
-            // Jika user lupa menulis http/https, tambahkan otomatis
+            // Jika user lupa menulis http/https, tambahkan otomatis (safety check meski sudah permanen)
             if (!baseUrl.startsWith('http')) {
                 baseUrl = 'https://' + baseUrl;
             }
@@ -123,16 +123,6 @@
             navigator.clipboard.writeText(text).then(() => {
                 alert("Link berhasil disalin!");
             });
-        }
-        
-        // Coba deteksi URL otomatis jika file ini dijalankan satu folder dengan index.html
-        window.onload = function() {
-            const currentPath = window.location.href;
-            // Jika dijalankan di localhost/folder, coba tebak index.html-nya
-            if(!currentPath.includes('file://')) {
-                const guessedUrl = currentPath.substring(0, currentPath.lastIndexOf('/')) + '/index.html';
-                document.getElementById('baseUrl').value = guessedUrl;
-            }
         }
     </script>
 </body>
