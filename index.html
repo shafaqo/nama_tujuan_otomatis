@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Link Undangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+    </style>
+</head>
+<body class="p-6">
+
+    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-[#2F5233] p-6 text-white text-center">
+            <h1 class="text-2xl font-bold mb-2">Aplikasi Pembuat Link Undangan</h1>
+            <p class="opacity-80 text-sm">Diana & Ikbal Wedding</p>
+        </div>
+
+        <div class="p-6 space-y-6">
+            
+            <!-- Step 1: Input URL -->
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <label class="block text-gray-700 font-bold mb-2">1. Masukkan Link Website Undangan</label>
+                <p class="text-xs text-gray-500 mb-2">Contoh: <i>diana-ikbal.vercel.app</i> atau copy link dari browser saat membuka index.html</p>
+                <input type="text" id="baseUrl" placeholder="https://website-undangan-anda.com/index.html" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#2F5233] outline-none">
+            </div>
+
+            <!-- Step 2: Input Nama Tamu -->
+            <div>
+                <label class="block text-gray-700 font-bold mb-2">2. Daftar Nama Tamu</label>
+                <p class="text-xs text-gray-500 mb-2">Tulis satu nama per baris (Enter untuk nama berikutnya)</p>
+                <textarea id="guestList" rows="6" placeholder="Budi Santoso&#10;Siti Aminah&#10;Pak RT 05" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#2F5233] outline-none bg-gray-50"></textarea>
+            </div>
+
+            <!-- Action Button -->
+            <button onclick="generateLinks()" class="w-full bg-[#C5A059] hover:bg-[#b08d4b] text-white font-bold py-3 rounded-lg transition transform active:scale-95 shadow-md">
+                <i class="fas fa-magic mr-2"></i> Buat Link Sekarang
+            </button>
+
+            <!-- Result Table -->
+            <div id="resultArea" class="hidden">
+                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2">Hasil Link Undangan:</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-600 text-sm uppercase">
+                                <th class="p-3 border-b">Nama Tamu</th>
+                                <th class="p-3 border-b">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="linkTableBody" class="text-sm">
+                            <!-- Rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function generateLinks() {
+            let baseUrl = document.getElementById('baseUrl').value.trim();
+            const guestListText = document.getElementById('guestList').value;
+            const tableBody = document.getElementById('linkTableBody');
+            const resultArea = document.getElementById('resultArea');
+
+            // Validasi sederhana
+            if (!baseUrl) {
+                alert("Mohon masukkan link website undangan terlebih dahulu.");
+                return;
+            }
+            
+            // Jika user lupa menulis http/https, tambahkan otomatis
+            if (!baseUrl.startsWith('http')) {
+                baseUrl = 'https://' + baseUrl;
+            }
+
+            const guests = guestListText.split('\n').filter(name => name.trim() !== '');
+
+            if (guests.length === 0) {
+                alert("Mohon masukkan minimal satu nama tamu.");
+                return;
+            }
+
+            // Reset table
+            tableBody.innerHTML = '';
+            resultArea.classList.remove('hidden');
+
+            guests.forEach(guest => {
+                const cleanName = guest.trim();
+                // Membuat URL Parameter yang aman (spasi jadi %20 dst)
+                const finalUrl = `${baseUrl}?to=${encodeURIComponent(cleanName)}`;
+                
+                // Pesan WhatsApp Template
+                const waMessage = `Assalamu'alaikum Warahmatullahi Wabarakatuh\n\nKepada Yth. ${cleanName},\n\nTanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam acara pernikahan kami.\n\nBerikut link undangan kami:\n${finalUrl}\n\nMerupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.\n\nTerima kasih,\nDiana & Ikbal`;
+                
+                const waLink = `https://wa.me/?text=${encodeURIComponent(waMessage)}`;
+
+                const row = `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-3 font-medium text-gray-800">${cleanName}</td>
+                        <td class="p-3 flex gap-2">
+                            <button onclick="copyLink('${finalUrl}')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded text-xs flex items-center">
+                                <i class="fas fa-copy mr-1"></i> Copy Link
+                            </button>
+                            <a href="${waLink}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs flex items-center">
+                                <i class="fab fa-whatsapp mr-1"></i> Kirim WA
+                            </a>
+                        </td>
+                    </tr>
+                `;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function copyLink(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("Link berhasil disalin!");
+            });
+        }
+        
+        // Coba deteksi URL otomatis jika file ini dijalankan satu folder dengan index.html
+        window.onload = function() {
+            const currentPath = window.location.href;
+            // Jika dijalankan di localhost/folder, coba tebak index.html-nya
+            if(!currentPath.includes('file://')) {
+                const guessedUrl = currentPath.substring(0, currentPath.lastIndexOf('/')) + '/index.html';
+                document.getElementById('baseUrl').value = guessedUrl;
+            }
+        }
+    </script>
+</body>
+</html>
